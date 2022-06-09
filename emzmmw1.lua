@@ -4589,7 +4589,7 @@ end
 
 RunService.RenderStepped:Wait()      
 
-local gui = library:New("Memzhack.Pasted")      
+local gui = library:New("Memzhack.Pasted v1.1")      
 local legit = gui:Tab("legit")      
 local rage = gui:Tab("rage")      
 local visuals = gui:Tab("visuals")      
@@ -4693,9 +4693,10 @@ aimbot:Element("Toggle", "enabled")
 aimbot:Element("Dropdown", "origin", {options = {"character", "camera"}})      
 aimbot:Element("Toggle", "silent aim")      
 aimbot:Element("Dropdown", "automatic fire", {options = {"off", "standard", "hitpart", "gun-aura", "instant-shoot"}})     
-aimbot:Element("Toggle", "wallbang")    
-aimbot:Element('Toggle', 'resolver offset')
+aimbot:Element("Toggle", "wallbang")
 aimbot:Element('Jumbobox', 'resolver', {options = {'pitch', 'roll', 'arms', 'animation', 'forward track'}})
+aimbot:Element("Toggle", "rage bot priority")
+aimbot:Element("Dropdown", "priority mode", {options = {'body', 'upper torso', 'head', 'legs', 'arms'}})
 aimbot:Element('Slider', 'resolver offset distance', {min = 6, max = 1000, default = 6})
 aimbot:Element("Toggle", "prediction")   
 aimbot:Element("Toggle", "force hit")
@@ -7265,14 +7266,26 @@ mt.__namecall = function(self, ...)
 		end      
 	end      
 	if method == "FireServer" and self.Name == "HitPart" then      
-		if values.rage.aimbot['force mode'].Dropdown == 'hit' and values.rage.aimbot['force hit'].Toggle then
-			args[1] = RageTarget
-			args[2] = RageTarget.Position
-		end
-		if values.rage.aimbot['force mode'].Dropdown == 'headshot' and values.rage.aimbot['force hit'].Toggle then
+		if values.rage.aimbot['priority mode'].Dropdown == "body" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+            args[1] = RageTarget
+            args[2] = RageTarget.Position 
+        end
+		if values.rage.aimbot['priority mode'].Dropdown == "upper torso" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+			args[1] = RageTarget.Character.UpperTorso
+			args[2] = RageTarget.Character.UpperTorso.Position 
+        end
+		if values.rage.aimbot['priority mode'].Dropdown == "head" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
 			args[1] = RageTarget.Parent.Head
-			args[2] = RageTarget.Position
-		end
+			args[2] = RageTarget.Position 
+        end
+		if values.rage.aimbot['priority mode'].Dropdown == "legs" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+			args[1] = RageTarget.Character.LeftLowerLeg
+			args[2] = RageTarget.Character.LeftLowerLeg.Position 
+        end
+		if values.rage.aimbot['priority mode'].Dropdown == "arms" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+			args[1] = RageTarget.Character.LeftUpperArm
+			args[2] = RageTarget.Character.LeftUpperArm.Position 
+        end
 		if values.rage.exploits["kill all"] or values.rage.exploits["kill all"] then
 			coroutine.wrap(function()
 				if game.Players:GetPlayerFromCharacter(args[1].Parent) then RageTarget = args[1] end
