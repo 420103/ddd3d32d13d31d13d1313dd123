@@ -4589,7 +4589,7 @@ end
 
 RunService.RenderStepped:Wait()      
 
-local gui = library:New("Memzhack.Pasted v1.1")      
+local gui = library:New("Memzhack.Pasted v1.2")      
 local legit = gui:Tab("legit")      
 local rage = gui:Tab("rage")      
 local visuals = gui:Tab("visuals")      
@@ -4696,11 +4696,9 @@ aimbot:Element("Dropdown", "automatic fire", {options = {"off", "standard", "hit
 aimbot:Element("Toggle", "wallbang")
 aimbot:Element('Jumbobox', 'resolver', {options = {'pitch', 'roll', 'arms', 'animation', 'forward track'}})
 aimbot:Element('Slider', 'resolver offset distance', {min = 6, max = 1000, default = 6})
-aimbot:Element("Toggle", "rage bot priority")
-aimbot:Element("Dropdown", "priority mode", {options = {'body', 'upper torso', 'head', 'legs', 'arms'}})
+aimbot:Element("Toggle", "bullet redirection")
+aimbot:Element("Dropdown", "redirection part", {options = {'body', 'upper torso', 'head', 'legs', 'arms'}})
 aimbot:Element("Toggle", "prediction")   
-aimbot:Element("Toggle", "force hit")
-aimbot:Element("Dropdown", "force mode", {options = {'hit', 'headshot'}})
 aimbot:Element('ToggleKeybind', 'raycast')
 aimbot:Element('Slider', 'rayamount', {min = 1, max = 10, default = 1})     
 aimbot:Element("Toggle", "teammates")      
@@ -5250,7 +5248,7 @@ end)
 local exploits = rage:Sector("exploits", "Left")      
 exploits:Element("ToggleKeybind", "double tap")    
 exploits:Element("ToggleKeybind", "kill all")
-exploits:Element("Slider", "kill amount", {min = 1, max = 50, default = 1})
+exploits:Element("Slider", "hits per second", {min = 1, max = 100, default = 1})
 exploits:Element("Toggle", "anti-ping", {}, function(tbl)      
 	spawn(function()
 		while values.rage.exploits["anti-ping"].Toggle do
@@ -6208,7 +6206,37 @@ RunService.RenderStepped:Connect(function(step)
 		local Root = LocalPlayer.Character.HumanoidRootPart      
 		if values.misc.client["infinite crouch"].Toggle then      
 			Client.crouchcooldown = 0      
-		end      
+		end 
+		
+		local function predict(part, ping)
+			local oldPos = part.Position
+			local newPos = part.Position
+			local playerSpeed = (newPos - oldPos).magnitude / step
+			local direction = CFrame.new(oldPos, newPos)
+			local final = (direction * CFrame.new(0, 0, -(playerSpeed * (ping / 1000)))).p
+			return final
+		end
+		if values.rage.exploits["kill all"].Toggle and values.rage.exploits["kill all"].Active and LocalPlayer.Character:FindFirstChild("UpperTorso") and LocalPlayer.Character:FindFirstChild("Gun") then   
+			for _,Player in pairs(Players:GetPlayers()) do   
+				if Player.Character and Player.Team ~= LocalPlayer.Team and Player.Character:FindFirstChild("UpperTorso") then   
+					local oh1 = Player.Character.Head   
+					local oh2 = predict(Player.Character.Head, Ping)  
+					local oh3 = Client.gun.Name   
+					local oh4 = 4096   
+					local oh5 = LocalPlayer.Character.Gun   
+					local oh8 = 15   
+					local oh9 = false   
+					local oh10 = false   
+					local oh11 = Vec3(0,0,0)   
+					local oh12 = 16868   
+					local oh13 = Vec3(0, 0, 0)   
+					for i = 1, values.rage.exploits["hits per second"].Slider, 1 do 
+						game:GetService("ReplicatedStorage").Events.HitPart:FireServer(oh1, oh2, oh3, oh4, oh5, oh6, oh7, oh8, oh9, oh10, oh11, oh12, oh13)
+					end 
+				end   
+			end   
+		end  
+
 		if TBLFIND(values.misc.client["gun modifiers"].Jumbobox, "firerate") then      
 			Client.DISABLED = false      
 		end            
@@ -7266,23 +7294,23 @@ mt.__namecall = function(self, ...)
 		end      
 	end      
 	if method == "FireServer" and self.Name == "HitPart" then      
-		if values.rage.aimbot['priority mode'].Dropdown == "body" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+		if values.rage.aimbot['redirection part'].Dropdown == "body" and values.rage.aimbot["bullet redirection"].Toggle and RageTarget ~= nil then 
             args[1] = RageTarget
             args[2] = RageTarget.Position 
         end
-		if values.rage.aimbot['priority mode'].Dropdown == "upper torso" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+		if values.rage.aimbot['redirection part'].Dropdown == "upper torso" and values.rage.aimbot["bullet redirection"].Toggle and RageTarget ~= nil then 
 			args[1] = RageTarget.Character.UpperTorso
 			args[2] = RageTarget.Character.UpperTorso.Position 
         end
-		if values.rage.aimbot['priority mode'].Dropdown == "head" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+		if values.rage.aimbot['redirection part'].Dropdown == "head" and values.rage.aimbot["bullet redirection"].Toggle and RageTarget ~= nil then 
 			args[1] = RageTarget.Parent.Head
 			args[2] = RageTarget.Position 
         end
-		if values.rage.aimbot['priority mode'].Dropdown == "legs" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+		if values.rage.aimbot['redirection part'].Dropdown == "legs" and values.rage.aimbot["bullet redirection"].Toggle and RageTarget ~= nil then 
 			args[1] = RageTarget.Character.LeftLowerLeg
 			args[2] = RageTarget.Character.LeftLowerLeg.Position 
         end
-		if values.rage.aimbot['priority mode'].Dropdown == "arms" and values.rage.aimbot["rage bot priority"].Toggle and RageTarget ~= nil then 
+		if values.rage.aimbot['redirection part'].Dropdown == "arms" and values.rage.aimbot["bullet redirection"].Toggle and RageTarget ~= nil then 
 			args[1] = RageTarget.Character.LeftUpperArm
 			args[2] = RageTarget.Character.LeftUpperArm.Position 
         end
